@@ -1,0 +1,61 @@
+version: '2'
+services:
+  api-gateway:
+    container_name: api-gateway
+    build:
+      context: api-gateway
+      dockerfile: Dockerfile
+    image: api-gateway:latest
+    ports:
+      - "8080:8080"
+    networks:
+        - spring-cloud-network
+
+
+  savings-service-a:
+    container_name: savings-service-a
+    build:
+      context: savings-service
+      dockerfile: Dockerfile
+    image: savings-service-a:latest
+    depends_on:
+      - postgres-a
+    environment:
+      - "SPRING_PROFILES_ACTIVE=a"
+    networks:
+      - spring-cloud-network
+
+  postgres-a:
+    image: postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=savings
+    networks:
+      - spring-cloud-network
+
+  savings-service-b:
+    container_name: savings-service-b
+    build:
+      context: savings-service
+      dockerfile: Dockerfile
+    image: savings-service-b:latest
+    depends_on:
+      - postgres-b
+    environment:
+      - "SPRING_PROFILES_ACTIVE=b"
+    networks:
+      - spring-cloud-network
+
+  postgres-b:
+    image: postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=savings
+    networks:
+      - spring-cloud-network
+
+networks:
+  spring-cloud-network:
+    driver: bridge
